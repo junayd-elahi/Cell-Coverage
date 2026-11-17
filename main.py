@@ -40,3 +40,34 @@ mean_error = np.mean([result[3] for result in results])
 
 print(f"\nImages evaluated: {len(results)}")
 print(f"Mean absolute error: {mean_error:.2f} percentage points")
+
+worst = max(results, key=lambda result: result[3])
+
+filename = worst[0]
+
+image = np.asarray(Image.open(image_dir / filename))
+reference = np.asarray(Image.open(mask_dir / filename)) > 0
+prediction = predict_mask(image)
+
+fig, axes = plt.subplots(1, 3, figsize=(12, 4))
+
+axes[0].imshow(image, cmap="gray")
+axes[0].set_title("Original Image")
+
+axes[1].imshow(prediction, cmap="gray")
+axes[1].set_title("Predicted Mask")
+
+axes[2].imshow(reference, cmap="gray")
+axes[2].set_title("Reference Mask")
+
+for ax in axes:
+    ax.axis("off")
+
+plt.tight_layout()
+plt.savefig("worst_prediction.png", dpi=200)
+plt.show()
+
+print(f"Worst image: {filename}")
+print(f"Predicted coverage: {worst[1]:.2f}%")
+print(f"Reference coverage: {worst[2]:.2f}%")
+print(f"Absolute error: {worst[3]:.2f} pp")
