@@ -6,11 +6,11 @@ from skimage.filters import threshold_otsu
 import matplotlib.pyplot as plt
 
 data_dir = Path('cell-coverage-data')
+image_dir = data_dir / 'image'
+mask_dir = data_dir / 'mask'
+files = sorted(image_dir.glob("*_channel3.tif"))
 
-filename = "AS_09125_050116000001_A24f00d0_slice1_channel3.tif"
-
-image = np.asarray(Image.open(data_dir / "image" /filename))
-reference = np.asarray(Image.open(data_dir / "mask" /filename))
+results = []
 
 def coverage_percent(mask):
     return np.mean(mask) * 100
@@ -19,26 +19,24 @@ def predict_mask(image):
     threshold = threshold_otsu(image)
     return  image > threshold
 
-test_mask = np.array([
-    [True, False],
-    [False, False]
-])
 
-prediction = predict_mask(image)
+results = []
 
+for path in files:
+    image = np.asarray(Image.open(path))
+    reference = np.asarray(Image.open(mask_dir / path.name)) > 0
 
-print("Predicted coverage:", coverage_percent(prediction))
+    prediction = predict_mask(image)
 
-fig, axes = plt.subplots(1,2, figsize=(10,5))
+    predicted = coverage_percent(prediction)
+    actual = coverage_percent(reference)
+    error = abs(predicted - actual)
 
-axes[0].imshow(image, cmap='gray')
-axes[0].set_title("Original image")
+    results.append((path.name, predicted, actual, error))
 
-axes[1].imshow(prediction, cmap='gray')
-axes[1].set_title("Predicted mask")
+    print(f"{path.name}: Error = {error:.2f} pp")
 
-for ax in axes:
-    ax.axis("off")
+mean_error = np.mean([result[3] for result in results])
 
-plt.tight_layout()
-plt.show()
+print(f"\nImages evaluated: {len(results)}")
+print(f"Mean absolute error: {mean_error:.2f} percentage points")
