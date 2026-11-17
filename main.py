@@ -1,16 +1,15 @@
-# This is a sample Python script.
+from pathlib import Path
 
-# Press Shift+F10 to execute it or replace it with your code.
-# Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
+import numpy as np
+from PIL import Image
 
+data_dir = Path('cell-coverage-data')
 
-def print_hi(name):
-    # Use a breakpoint in the code line below to debug your script.
-    print(f'Hi, {name}')  # Press Ctrl+F8 to toggle the breakpoint.
+filename = "AS_09125_050116000001_A24f00d0_slice1_channel1.tif"
 
+image = np.asarray(Image.open(data_dir / "BBBC008_v1_images" /filename))
+reference = np.asarray(Image.open(data_dir / "BBBC008_v1_foreground" /filename))
 
-# Press the green button in the gutter to run the script.
-if __name__ == '__main__':
-    print_hi('PyCharm')
-
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
+print("Image shape: ", image.shape)
+print("Intensity range: ", image.min(), image.max())
+print("Reference shape: ", reference.shape)
