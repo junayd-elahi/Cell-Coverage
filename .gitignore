@@ -1,1 +1,7 @@
-.venv
+# Dataset
+cell-coverage-data/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
